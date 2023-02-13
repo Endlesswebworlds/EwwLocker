@@ -41,12 +41,6 @@ describe("Token", () => {
       await contract.functions.allowAddress(tokenAdress, newAllowedAddress.address);
       await contract.functions.setDailyLimit(tokenAdress, worldId, 2);
 
-      const currentLimit = await contract.functions.getCurrentLimit(tokenAdress, worldId);
-      const currentLimitA = await contract.functions.getCurrentLimitA(tokenAdress, worldId);
-
-      console.log(`currentLimit: ${currentLimit}`);
-      console.log(`currentLimitA: ${currentLimitA}`);
-
       await contract.connect(newAllowedAddress).functions.retrieveFunds(tokenAdress, worldId, 1);
       const funds = await contract.functions.funds(tokenAdress, worldId);
       expect(funds.toString()).to.equal("99");

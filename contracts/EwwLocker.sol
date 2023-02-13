@@ -67,27 +67,6 @@ contract EwwLocker {
         funds[tokenAddress][worldId] = 0;
     }
 
-    function getCurrentLimit(address tokenAddress, string memory worldId) public view returns (uint256) {
-        return dailyLimit[tokenAddress][worldId];
-    }
-
-    function getCurrentLimitA(address tokenAddress, string memory worldId)
-        public
-        view
-        returns (
-            uint256,
-            uint256,
-            uint256
-        )
-    {
-        uint256 limit = dailyLimit[tokenAddress][worldId];
-        uint256 currentTime = block.timestamp;
-        uint256 timeSinceLastRetrieval = currentTime - lastRetrievals[tokenAddress][worldId];
-        uint256 maxAmount = (limit * timeSinceLastRetrieval) / 86400;
-
-        return (limit, timeSinceLastRetrieval, maxAmount);
-    }
-
     function allowAddress(address tokenAddress, address allowedAddress) public payable {
         allowances[tokenAddress][allowedAddress] = true;
     }
