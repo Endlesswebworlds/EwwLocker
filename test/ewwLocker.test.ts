@@ -41,7 +41,7 @@ describe("Token", () => {
       await contract.functions.allowAddress(tokenAdress, newAllowedAddress.address);
       await contract.functions.setDailyLimit(tokenAdress, worldId, 2);
 
-      await contract.connect(newAllowedAddress).functions.retrieveFunds(tokenAdress, worldId, 1);
+      await contract.connect(newAllowedAddress).functions.retrieveFunds(tokenAdress, newAllowedAddress.address, worldId, 1);
       const funds = await contract.functions.funds(tokenAdress, worldId);
       expect(funds.toString()).to.equal("99");
     });
@@ -50,7 +50,7 @@ describe("Token", () => {
       let { contract, tokenAdress, worldId } = await loadFixture(addFunds);
       const newAllowedAddress = (await ethers.getSigners())[0];
 
-      expect(contract.connect(newAllowedAddress).functions.retrieveFunds(tokenAdress, worldId, 1)).to.be.revertedWith("Address not authorized to retrieve funds");
+      expect(contract.connect(newAllowedAddress).functions.retrieveFunds(tokenAdress, newAllowedAddress.address, worldId, 1)).to.be.revertedWith("Address not authorized to retrieve funds");
     });
 
     it("should not retrieve funds if the daily limit is exceeded", async () => {
@@ -58,9 +58,9 @@ describe("Token", () => {
       const newAllowedAddress = (await ethers.getSigners())[0];
       await contract.functions.allowAddress(tokenAdress, newAllowedAddress.address);
       await contract.functions.setDailyLimit(tokenAdress, worldId, 2);
-  
-      await contract.connect(newAllowedAddress).functions.retrieveFunds(tokenAdress, worldId, 2);
-      expect(contract.connect(newAllowedAddress).functions.retrieveFunds(tokenAdress, worldId, 1)).to.be.revertedWith("You have already reached the daily limit.");
+
+      await contract.connect(newAllowedAddress).functions.retrieveFunds(tokenAdress, newAllowedAddress.address, worldId, 2);
+      expect(contract.connect(newAllowedAddress).functions.retrieveFunds(tokenAdress, newAllowedAddress.address, worldId, 1)).to.be.revertedWith("You have already reached the daily limit.");
     });
   });
 
@@ -75,7 +75,7 @@ describe("Token", () => {
     it("should not withdraw funds if the address is not the owner", async () => {
       let { contract, tokenAdress, worldId } = await loadFixture(addFunds);
       const unauthorizedAddress = (await ethers.getSigners())[0];
-  
+
       expect(contract.connect(unauthorizedAddress).functions.withdrawFunds(tokenAdress, worldId)).to.be.revertedWith("The msg.sender is not the owner of these funds");
     });
   });

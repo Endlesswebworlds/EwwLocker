@@ -39,6 +39,7 @@ contract EwwLocker {
 
     function retrieveFunds(
         address tokenAddress,
+        address toAddress,
         string memory worldId,
         uint256 amount
     ) public {
@@ -54,7 +55,7 @@ contract EwwLocker {
 
         funds[tokenAddress][worldId] -= amount;
         IERC20 token = IERC20(tokenAddress);
-        token.transfer(msg.sender, amount);
+        token.transfer(toAddress, amount);
         lastRetrievals[tokenAddress][worldId] = block.timestamp;
     }
 
