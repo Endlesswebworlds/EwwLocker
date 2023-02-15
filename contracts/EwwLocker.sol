@@ -10,13 +10,15 @@ struct TokenFund {
 contract EwwLocker {
     mapping(address => mapping(string => uint256)) public funds;
     mapping(address => mapping(address => bool)) public allowances;
+    mapping(address => mapping(string => uint256)) public lastRetrievals;
+    mapping(address => mapping(string => uint256)) public dailyFundsRetrieved;
     mapping(address => mapping(string => uint256)) private dailyLimit;
-    mapping(address => mapping(string => uint256)) private lastRetrievals;
     mapping(address => mapping(string => address)) private fundOwners;
     mapping(string => address[]) private worldTokenAddresses;
     uint256 private blockStart;
 
     event AddedFunds(address _from, address _destAddr, uint256 _amount);
+    event RetrievedFunds(address _toAddress, uint256 _amount);
 
     constructor() {
         blockStart = block.number;
@@ -45,18 +47,22 @@ contract EwwLocker {
     ) public {
         require(allowances[tokenAddress][msg.sender], "Address not authorized to retrieve funds");
         require(amount <= funds[tokenAddress][worldId], "Insufficient funds");
-        require(
-            block.timestamp >= lastRetrievals[tokenAddress][worldId] + 24 hours,
-            "You have already reached the daily limit."
-        );
-
         uint256 limit = dailyLimit[tokenAddress][worldId];
-        require(amount <= limit, "Amount exceeds daily limit");
+        uint256 todayFundsRetrieved = dailyFundsRetrieved[tokenAddress][worldId];
+
+        if (block.timestamp >= lastRetrievals[tokenAddress][worldId] + 24 hours) {
+            todayFundsRetrieved = 0;
+        }
+
+        require(todayFundsRetrieved + amount <= limit, "Amount exceeds daily limit");
 
         funds[tokenAddress][worldId] -= amount;
         IERC20 token = IERC20(tokenAddress);
         token.transfer(toAddress, amount);
         lastRetrievals[tokenAddress][worldId] = block.timestamp;
+        dailyFundsRetrieved[tokenAddress][worldId] += amount;
+
+        emit RetrievedFunds(toAddress, amount);
     }
 
     function withdrawFunds(address tokenAddress, string memory worldId) public payable {
@@ -91,6 +97,7 @@ contract EwwLocker {
         string memory worldId,
         uint256 limit
     ) public payable {
+        require(fundOwners[tokenAddress][worldId] == msg.sender, "The msg.sender is not the owner of these funds");
         dailyLimit[tokenAddress][worldId] = limit;
     }
 }

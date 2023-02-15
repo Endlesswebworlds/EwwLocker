@@ -62,6 +62,20 @@ describe("Token", () => {
       await contract.connect(newAllowedAddress).functions.retrieveFunds(tokenAdress, newAllowedAddress.address, worldId, 2);
       expect(contract.connect(newAllowedAddress).functions.retrieveFunds(tokenAdress, newAllowedAddress.address, worldId, 1)).to.be.revertedWith("You have already reached the daily limit.");
     });
+
+    it("should allow 5 successful retrieveFunds calls with daily limit of 5", async () => {
+      let { contract, tokenAdress, worldId } = await loadFixture(addFunds);
+      const newAllowedAddress = (await ethers.getSigners())[0];
+      await contract.functions.allowAddress(tokenAdress, newAllowedAddress.address);
+      await contract.functions.setDailyLimit(tokenAdress, worldId, 5);
+
+      for (let i = 0; i < 5; i++) {
+        await contract.connect(newAllowedAddress).functions.retrieveFunds(tokenAdress, newAllowedAddress.address, worldId, 1);
+      }
+
+      const funds = await contract.functions.funds(tokenAdress, worldId);
+      expect(funds.toString()).to.equal("95");
+    });
   });
 
   describe("withdrawFunds", () => {
