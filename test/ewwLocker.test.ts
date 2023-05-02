@@ -38,7 +38,7 @@ describe("Token", () => {
     it("should retrieve funds from the contract", async () => {
       let { contract, tokenAdress, worldId, amount } = await loadFixture(addFunds);
       const newAllowedAddress = (await ethers.getSigners())[0];
-      await contract.functions.allowAddress(tokenAdress, newAllowedAddress.address);
+      await contract.functions.allowAddress(tokenAdress, newAllowedAddress.address, "worldId");
       await contract.functions.setDailyLimit(tokenAdress, worldId, 2);
 
       await contract.connect(newAllowedAddress).functions.retrieveFunds(tokenAdress, newAllowedAddress.address, worldId, 1);
@@ -56,7 +56,7 @@ describe("Token", () => {
     it("should not retrieve funds if the daily limit is exceeded", async () => {
       let { contract, tokenAdress, worldId } = await loadFixture(addFunds);
       const newAllowedAddress = (await ethers.getSigners())[0];
-      await contract.functions.allowAddress(tokenAdress, newAllowedAddress.address);
+      await contract.functions.allowAddress(tokenAdress, newAllowedAddress.address, "worldId");
       await contract.functions.setDailyLimit(tokenAdress, worldId, 2);
 
       await contract.connect(newAllowedAddress).functions.retrieveFunds(tokenAdress, newAllowedAddress.address, worldId, 2);
@@ -66,7 +66,7 @@ describe("Token", () => {
     it("should allow 5 successful retrieveFunds calls with daily limit of 5", async () => {
       let { contract, tokenAdress, worldId } = await loadFixture(addFunds);
       const newAllowedAddress = (await ethers.getSigners())[0];
-      await contract.functions.allowAddress(tokenAdress, newAllowedAddress.address);
+      await contract.functions.allowAddress(tokenAdress, newAllowedAddress.address, "worldId");
       await contract.functions.setDailyLimit(tokenAdress, worldId, 5);
 
       for (let i = 0; i < 5; i++) {
@@ -97,8 +97,8 @@ describe("Token", () => {
   describe("allowAddress", () => {
     it("should allow an address to retrieve funds", async () => {
       let { contract, tokenAdress } = await loadFixture(addFunds);
-      await contract.functions.allowAddress(tokenAdress, (await ethers.getSigners())[0].address);
-      const allowed = await contract.functions.allowances(tokenAdress, (await ethers.getSigners())[0].address);
+      await contract.functions.allowAddress(tokenAdress, (await ethers.getSigners())[0].address, "worldId");
+      const allowed = await contract.functions.allowances(tokenAdress, (await ethers.getSigners())[0].address, "worldId");
       expect(allowed[0]).to.be.true;
     });
   });

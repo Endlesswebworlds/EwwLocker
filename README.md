@@ -1,8 +1,20 @@
 # EwwLocker
 
-Funds can be send to the locker to fund a world.
-Set a daily limit that cant be exceeded.
-Set a allowance for a specific address (node-server) that can give out funds
+Funds can be send to the locker to fund a world, to achive relative secure transfer operations or 
+a automated airdrop mechanism
+
+## Steps to do
+
+1. Call Approve on the token contract (e.g USDC) and as sender use the EwwLocker contract address 
+2. Call AddFunds 
+3. Call SetDailyLimit
+4. Call AllowAddress to Node Address that can operate 
+
+
+## Current EwwLocker addresses
+
+1. Matic = 0x3Ea5432C0435Da5db06edBb83917f68B66F06bA3
+
 
 ## Usage
 
@@ -39,3 +51,5 @@ To take a snapshot of the contract's gas costs
 ```sh
 yarn test:gas
 ```
+
+
